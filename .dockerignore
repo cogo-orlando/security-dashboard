@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Environnement local
+.env
+.env.*
+!.env.example
+
+# Air
+tmp/
+.air.toml
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+*_test.go

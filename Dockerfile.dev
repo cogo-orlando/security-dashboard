@@ -1,0 +1,20 @@
+# ══════════════════════════════════════════
+#  DOCKERFILE DEV — Hot reload avec Air
+# ══════════════════════════════════════════
+FROM golang:1.23-alpine
+
+RUN apk add --no-cache git
+
+WORKDIR /app
+
+RUN go install github.com/air-verse/air@v1.61.7
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+EXPOSE 8081
+
+ENV PORT=8081 \
+    TZ=Europe/Paris
+
+CMD ["air"]

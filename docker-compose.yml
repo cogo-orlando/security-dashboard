@@ -1,0 +1,38 @@
+# ══════════════════════════════════════════
+#  DOCKER COMPOSE — Production
+#  Usage : docker compose up -d
+# ══════════════════════════════════════════
+services:
+
+  security-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: security-dashboard:latest
+    container_name: security-dashboard
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      PORT: "8081"
+      TZ: "Europe/Paris"
+      DATABASE_URL: ${DATABASE_URL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ENV: "production"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8081/login || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 32M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
