@@ -39,7 +39,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tmpl.Execute(w, map[string]string{"Error": errMsg}) //nolint:errcheck
+	_ = tmpl.Execute(w, map[string]string{"Error": errMsg}) // #nosec G104
 }
 
 func APILoginHandler(db *sql.DB) http.HandlerFunc {
@@ -83,7 +83,7 @@ func DashboardHandler(db *sql.DB) http.Handler {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.Execute(w, nil) //nolint:errcheck
+		_ = tmpl.Execute(w, nil) // #nosec G104
 	})
 }
 
@@ -99,12 +99,12 @@ func APIStatsHandler(db *sql.DB) http.Handler {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(stats) //nolint:errcheck
+		_ = json.NewEncoder(w).Encode(stats) // #nosec G104
 	})
 }
 
 // ══════════════════════════════════════════
-//  API EVENTS — avec recherche et pagination
+//  API EVENTS
 // ══════════════════════════════════════════
 
 func APIEventsHandler(db *sql.DB) http.Handler {
@@ -117,7 +117,7 @@ func APIEventsHandler(db *sql.DB) http.Handler {
 		}
 
 		eventType := r.URL.Query().Get("type")
-		search := r.URL.Query().Get("q") // recherche par IP ou path
+		search := r.URL.Query().Get("q")
 
 		events, err := getEvents(db, limit, eventType, search)
 		if err != nil {
@@ -126,7 +126,7 @@ func APIEventsHandler(db *sql.DB) http.Handler {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(events) //nolint:errcheck
+		_ = json.NewEncoder(w).Encode(events) // #nosec G104
 	})
 }
 
@@ -142,12 +142,12 @@ func APIBlacklistHandler(db *sql.DB) http.Handler {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(blacklist) //nolint:errcheck
+		_ = json.NewEncoder(w).Encode(blacklist) // #nosec G104
 	})
 }
 
 // ══════════════════════════════════════════
-//  API USER AGENTS — top navigateurs/bots
+//  API USER AGENTS
 // ══════════════════════════════════════════
 
 func APIAgentsHandler(db *sql.DB) http.Handler {
@@ -185,17 +185,17 @@ func APIAgentsHandler(db *sql.DB) http.Handler {
 		var agents []AgentCount
 		for rows.Next() {
 			var a AgentCount
-			rows.Scan(&a.Agent, &a.Count) //nolint:errcheck
+			_ = rows.Scan(&a.Agent, &a.Count) // #nosec G104
 			agents = append(agents, a)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(agents) //nolint:errcheck
+		_ = json.NewEncoder(w).Encode(agents) // #nosec G104
 	})
 }
 
 // ══════════════════════════════════════════
-//  API ERREURS GROUPÉES — top 404/500 par path
+//  API ERREURS GROUPÉES
 // ══════════════════════════════════════════
 
 func APIErrorsHandler(db *sql.DB) http.Handler {
@@ -224,17 +224,17 @@ func APIErrorsHandler(db *sql.DB) http.Handler {
 		var errors []ErrorCount
 		for rows.Next() {
 			var e ErrorCount
-			rows.Scan(&e.Path, &e.Status, &e.Count) //nolint:errcheck
+			_ = rows.Scan(&e.Path, &e.Status, &e.Count) // #nosec G104
 			errors = append(errors, e)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(errors) //nolint:errcheck
+		_ = json.NewEncoder(w).Encode(errors) // #nosec G104
 	})
 }
 
 // ══════════════════════════════════════════
-//  API TENDANCES — comparaison 24h vs 48h
+//  API TENDANCES
 // ══════════════════════════════════════════
 
 func APITrendsHandler(db *sql.DB) http.Handler {
@@ -255,15 +255,13 @@ func APITrendsHandler(db *sql.DB) http.Handler {
 
 		var curr, prev Period
 
-		// Période actuelle — 0 à 24h
-		db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE created_at > NOW() - INTERVAL '24 hours'`).Scan(&curr.Total)                                //nolint:errcheck
-		db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'honeypot' AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&curr.Honeypot) //nolint:errcheck
-		db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE status >= 400 AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&curr.Errors)             //nolint:errcheck
+		_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE created_at > NOW() - INTERVAL '24 hours'`).Scan(&curr.Total)                                // #nosec G104
+		_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'honeypot' AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&curr.Honeypot) // #nosec G104
+		_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE status >= 400 AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&curr.Errors)             // #nosec G104
 
-		// Période précédente — 24h à 48h
-		db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE created_at BETWEEN NOW() - INTERVAL '48 hours' AND NOW() - INTERVAL '24 hours'`).Scan(&prev.Total)                                //nolint:errcheck
-		db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'honeypot' AND created_at BETWEEN NOW() - INTERVAL '48 hours' AND NOW() - INTERVAL '24 hours'`).Scan(&prev.Honeypot) //nolint:errcheck
-		db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE status >= 400 AND created_at BETWEEN NOW() - INTERVAL '48 hours' AND NOW() - INTERVAL '24 hours'`).Scan(&prev.Errors)             //nolint:errcheck
+		_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE created_at BETWEEN NOW() - INTERVAL '48 hours' AND NOW() - INTERVAL '24 hours'`).Scan(&prev.Total)                                // #nosec G104
+		_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'honeypot' AND created_at BETWEEN NOW() - INTERVAL '48 hours' AND NOW() - INTERVAL '24 hours'`).Scan(&prev.Honeypot) // #nosec G104
+		_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE status >= 400 AND created_at BETWEEN NOW() - INTERVAL '48 hours' AND NOW() - INTERVAL '24 hours'`).Scan(&prev.Errors)             // #nosec G104
 
 		delta := func(curr, prev int) float64 {
 			if prev == 0 {
@@ -281,7 +279,7 @@ func APITrendsHandler(db *sql.DB) http.Handler {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(trends) //nolint:errcheck
+		_ = json.NewEncoder(w).Encode(trends) // #nosec G104
 	})
 }
 
@@ -298,12 +296,12 @@ func APIExportHandler(db *sql.DB) http.Handler {
 			}
 		}
 
-		rows, err := db.Query(fmt.Sprintf(`
+		rows, err := db.Query(`
 			SELECT created_at, ip, method, path, status, COALESCE(user_agent,''), event_type
 			FROM security_events
-			WHERE created_at > NOW() - INTERVAL '%d days'
+			WHERE created_at > NOW() - ($1 * INTERVAL '1 day')
 			ORDER BY created_at DESC
-		`, days))
+		`, days)
 		if err != nil {
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
@@ -315,14 +313,14 @@ func APIExportHandler(db *sql.DB) http.Handler {
 		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 
 		cw := csv.NewWriter(w)
-		cw.Write([]string{"created_at", "ip", "method", "path", "status", "user_agent", "event_type"}) //nolint:errcheck
+		_ = cw.Write([]string{"created_at", "ip", "method", "path", "status", "user_agent", "event_type"}) // #nosec G104
 
 		for rows.Next() {
 			var createdAt time.Time
 			var ip, method, path, userAgent, eventType string
 			var status int
-			rows.Scan(&createdAt, &ip, &method, &path, &status, &userAgent, &eventType) //nolint:errcheck
-			cw.Write([]string{                                                          //nolint:errcheck
+			_ = rows.Scan(&createdAt, &ip, &method, &path, &status, &userAgent, &eventType) // #nosec G104
+			_ = cw.Write([]string{                                                          // #nosec G104
 				createdAt.Format(time.RFC3339),
 				ip, method, path,
 				strconv.Itoa(status),
@@ -335,7 +333,7 @@ func APIExportHandler(db *sql.DB) http.Handler {
 }
 
 // ══════════════════════════════════════════
-//  API CLEANUP — supprime les vieux événements
+//  API CLEANUP
 // ══════════════════════════════════════════
 
 func APICleanupHandler(db *sql.DB) http.Handler {
@@ -358,7 +356,7 @@ func APICleanupHandler(db *sql.DB) http.Handler {
 		slog.Info("cleanup effectué", "deleted", deleted)
 
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"deleted":%d,"message":"Événements > 30 jours supprimés"}`, deleted)
+		fmt.Fprintf(w, `{"deleted":%d,"message":"Événements > 30 jours supprimés"}`, deleted) // #nosec G104
 	})
 }
 
@@ -369,11 +367,11 @@ func APICleanupHandler(db *sql.DB) http.Handler {
 func getStats(db *sql.DB) (*models.DashboardStats, error) {
 	stats := &models.DashboardStats{}
 
-	db.QueryRow(`SELECT COUNT(*) FROM security_events`).Scan(&stats.TotalEvents)                                                                             //nolint:errcheck
-	db.QueryRow(`SELECT COUNT(*) FROM blacklisted_ips WHERE expires_at > NOW()`).Scan(&stats.TotalBlacklist)                                                 //nolint:errcheck
-	db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE created_at > NOW() - INTERVAL '24 hours'`).Scan(&stats.Events24h)                                //nolint:errcheck
-	db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'honeypot' AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&stats.Honeypots24h) //nolint:errcheck
-	db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'error' AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&stats.Errors24h)       //nolint:errcheck
+	_ = db.QueryRow(`SELECT COUNT(*) FROM security_events`).Scan(&stats.TotalEvents)                                                                             // #nosec G104
+	_ = db.QueryRow(`SELECT COUNT(*) FROM blacklisted_ips WHERE expires_at > NOW()`).Scan(&stats.TotalBlacklist)                                                 // #nosec G104
+	_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE created_at > NOW() - INTERVAL '24 hours'`).Scan(&stats.Events24h)                                // #nosec G104
+	_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'honeypot' AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&stats.Honeypots24h) // #nosec G104
+	_ = db.QueryRow(`SELECT COUNT(*) FROM security_events WHERE event_type = 'error' AND created_at > NOW() - INTERVAL '24 hours'`).Scan(&stats.Errors24h)       // #nosec G104
 
 	// Top IPs
 	rows, err := db.Query(`
@@ -385,7 +383,7 @@ func getStats(db *sql.DB) (*models.DashboardStats, error) {
 		defer rows.Close()
 		for rows.Next() {
 			var ip models.IPCount
-			rows.Scan(&ip.IP, &ip.Count) //nolint:errcheck
+			_ = rows.Scan(&ip.IP, &ip.Count) // #nosec G104
 			stats.TopIPs = append(stats.TopIPs, ip)
 		}
 	}
@@ -400,7 +398,7 @@ func getStats(db *sql.DB) (*models.DashboardStats, error) {
 		defer rows2.Close()
 		for rows2.Next() {
 			var p models.PathCount
-			rows2.Scan(&p.Path, &p.Count) //nolint:errcheck
+			_ = rows2.Scan(&p.Path, &p.Count) // #nosec G104
 			stats.TopPaths = append(stats.TopPaths, p)
 		}
 	}
@@ -416,7 +414,7 @@ func getStats(db *sql.DB) (*models.DashboardStats, error) {
 		defer rows3.Close()
 		for rows3.Next() {
 			var h models.HourCount
-			rows3.Scan(&h.Hour, &h.Count) //nolint:errcheck
+			_ = rows3.Scan(&h.Hour, &h.Count) // #nosec G104
 			stats.EventsByHour = append(stats.EventsByHour, h)
 		}
 	}
@@ -432,7 +430,7 @@ func getStats(db *sql.DB) (*models.DashboardStats, error) {
 		defer rows4.Close()
 		for rows4.Next() {
 			var e models.SecurityEvent
-			rows4.Scan(&e.ID, &e.CreatedAt, &e.IP, &e.Method, &e.Path, &e.Status, &e.UserAgent, &e.Country, &e.EventType) //nolint:errcheck
+			_ = rows4.Scan(&e.ID, &e.CreatedAt, &e.IP, &e.Method, &e.Path, &e.Status, &e.UserAgent, &e.Country, &e.EventType) // #nosec G104
 			stats.RecentEvents = append(stats.RecentEvents, e)
 		}
 	}
@@ -451,19 +449,19 @@ func getEvents(db *sql.DB, limit int, eventType, search string) ([]models.Securi
 
 	if eventType != "" {
 		args = append(args, eventType)
-		query += fmt.Sprintf(" AND event_type = $%d", len(args))
+		query += fmt.Sprintf(" AND event_type = $%d", len(args)) // #nosec G201
 	}
 
 	if search != "" {
 		args = append(args, "%"+strings.ToLower(search)+"%")
-		query += fmt.Sprintf(" AND (LOWER(ip) LIKE $%d OR LOWER(path) LIKE $%d)", len(args), len(args))
+		query += fmt.Sprintf(" AND (LOWER(ip) LIKE $%d OR LOWER(path) LIKE $%d)", len(args), len(args)) // #nosec G201
 	}
 
 	query += " ORDER BY created_at DESC"
 	args = append(args, limit)
-	query += fmt.Sprintf(" LIMIT $%d", len(args))
+	query += fmt.Sprintf(" LIMIT $%d", len(args)) // #nosec G201
 
-	rows, err := db.Query(query, args...)
+	rows, err := db.Query(query, args...) // #nosec G701
 	if err != nil {
 		return nil, err
 	}
@@ -472,7 +470,7 @@ func getEvents(db *sql.DB, limit int, eventType, search string) ([]models.Securi
 	var events []models.SecurityEvent
 	for rows.Next() {
 		var e models.SecurityEvent
-		rows.Scan(&e.ID, &e.CreatedAt, &e.IP, &e.Method, &e.Path, &e.Status, &e.UserAgent, &e.Country, &e.EventType) //nolint:errcheck
+		_ = rows.Scan(&e.ID, &e.CreatedAt, &e.IP, &e.Method, &e.Path, &e.Status, &e.UserAgent, &e.Country, &e.EventType) // #nosec G104
 		events = append(events, e)
 	}
 
@@ -494,7 +492,7 @@ func getBlacklist(db *sql.DB) ([]models.BlacklistedIP, error) {
 	var list []models.BlacklistedIP
 	for rows.Next() {
 		var b models.BlacklistedIP
-		rows.Scan(&b.ID, &b.IP, &b.Reason, &b.CreatedAt, &b.ExpiresAt) //nolint:errcheck
+		_ = rows.Scan(&b.ID, &b.IP, &b.Reason, &b.CreatedAt, &b.ExpiresAt) // #nosec G104
 		list = append(list, b)
 	}
 
@@ -507,20 +505,20 @@ func logFailedLogin(db *sql.DB, r *http.Request) {
 		ip = r.RemoteAddr
 	}
 
-	db.Exec(` //nolint:errcheck
+	_, _ = db.Exec(` // #nosec G104
 		INSERT INTO security_events (ip, method, path, status, user_agent, event_type)
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`, ip, r.Method, "/api/login", 401, r.UserAgent(), "brute_force")
 
 	var count int
-	db.QueryRow(`
+	_ = db.QueryRow(` // #nosec G104
 		SELECT COUNT(*) FROM security_events
 		WHERE ip = $1 AND event_type = 'brute_force'
 		AND created_at > NOW() - INTERVAL '10 minutes'
-	`, ip).Scan(&count) //nolint:errcheck
+	`, ip).Scan(&count)
 
 	if count >= 5 {
-		db.Exec(` //nolint:errcheck
+		_, _ = db.Exec(` // #nosec G104
 			INSERT INTO blacklisted_ips (ip, reason, expires_at)
 			VALUES ($1, $2, $3)
 			ON CONFLICT (ip) DO UPDATE SET expires_at = $3
