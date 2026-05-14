@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard — Login</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="blob" aria-hidden="true"></div>
+
+<main class="login-wrap">
+
+    <div class="login-card">
+
+        <div class="login-header">
+            <div class="login-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <h1 class="login-title">Security Dashboard</h1>
+            <p class="login-sub">Accès restreint — authentification requise</p>
+        </div>
+
+        <div class="terminal-bar" aria-hidden="true">
+            <span class="t-dot" style="background:#ff5f57"></span>
+            <span class="t-dot" style="background:#febc2e"></span>
+            <span class="t-dot" style="background:#28c840"></span>
+            <span class="t-title">auth.go</span>
+        </div>
+
+        {{if .Error}}
+        <div class="login-error" role="alert">
+            <span aria-hidden="true">✗</span> {{.Error}}
+        </div>
+        {{end}}
+
+        <form action="/api/login" method="POST" class="login-form" aria-label="Formulaire de connexion">
+            <div class="form-group">
+                <label class="form-label" for="password">
+                    <span class="label-prompt" aria-hidden="true">$</span> mot de passe
+                </label>
+                <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
+                        placeholder="••••••••"
+                        required
+                        autofocus
+                        autocomplete="current-password"
+                        aria-required="true">
+            </div>
+            <button type="submit" class="form-submit">
+                <span>Accéder au dashboard</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>Système opérationnel</span>
+        </div>
+
+    </div>
+
+</main>
+
+</body>
+</html>

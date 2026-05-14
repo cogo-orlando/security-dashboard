@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard — Orlando Cogo</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="blob1" aria-hidden="true"></div>
+<div class="blob2" aria-hidden="true"></div>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" aria-label="Navigation dashboard">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>Security<span class="logo-accent">Dashboard</span></span>
+        </div>
+        <div class="sidebar-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>Système actif</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Sections du dashboard">
+        <a href="#overview" class="nav-item active" data-section="overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Vue d'ensemble</span>
+        </a>
+        <a href="#events" class="nav-item" data-section="events">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Événements</span>
+        </a>
+        <a href="#blacklist" class="nav-item" data-section="blacklist">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            <span>Blacklist</span>
+        </a>
+        <a href="#traffic" class="nav-item" data-section="traffic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Trafic</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Déconnexion
+        </a>
+    </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main" id="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-tag" aria-hidden="true">
+                <span class="prompt">~/dashboard $</span>
+                <span class="topbar-cmd">monitor --live</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-time" id="liveTime" aria-live="polite"></div>
+            <button class="refresh-btn" id="refreshBtn" aria-label="Rafraîchir les données">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                Rafraîchir
+            </button>
+        </div>
+    </header>
+
+    <!-- ── SECTION OVERVIEW ── -->
+    <section class="section" id="section-overview" aria-labelledby="overview-title">
+
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">01 //</span>
+            <h1 class="section-title" id="overview-title">Vue d'ensemble</h1>
+            <span class="section-live">
+                <span class="live-dot" aria-hidden="true"></span>
+                Live
+            </span>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid" aria-label="Indicateurs clés">
+            <div class="kpi-card kpi-card--accent" id="kpi-events">
+                <div class="kpi-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="kpi-total-events">—</span>
+                    <span class="kpi-label">Total événements</span>
+                </div>
+            </div>
+            <div class="kpi-card" id="kpi-24h">
+                <div class="kpi-icon kpi-icon--cyan" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="kpi-events-24h">—</span>
+                    <span class="kpi-label">Requêtes 24h</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-card--warn" id="kpi-honeypot">
+                <div class="kpi-icon kpi-icon--warn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="kpi-honeypots">—</span>
+                    <span class="kpi-label">Honeypots 24h</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-card--danger" id="kpi-blacklist">
+                <div class="kpi-icon kpi-icon--danger" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="kpi-blacklist-count">—</span>
+                    <span class="kpi-label">IPs blacklistées</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique trafic par heure -->
+        <div class="chart-card reveal">
+            <div class="chart-header">
+                <span class="chart-title">Trafic par heure — 24h</span>
+                <span class="chart-sub" id="chart-total"></span>
+            </div>
+            <div class="chart-wrap" aria-label="Graphique du trafic par heure">
+                <canvas id="trafficChart" height="120"></canvas>
+            </div>
+        </div>
+
+        <!-- Top IPs + Top Paths -->
+        <div class="tables-grid">
+            <div class="table-card reveal">
+                <div class="table-header">
+                    <span class="table-title">Top IPs — 24h</span>
+                    <span class="table-badge" id="badge-ips">0</span>
+                </div>
+                <div class="table-body" id="table-ips">
+                    <div class="table-loading">Chargement...</div>
+                </div>
+            </div>
+            <div class="table-card reveal">
+                <div class="table-header">
+                    <span class="table-title">Top paths — 24h</span>
+                    <span class="table-badge" id="badge-paths">0</span>
+                </div>
+                <div class="table-body" id="table-paths">
+                    <div class="table-loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ── SECTION EVENTS ── -->
+    <section class="section hidden" id="section-events" aria-labelledby="events-title">
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">02 //</span>
+            <h2 class="section-title" id="events-title">Événements récents</h2>
+        </div>
+
+        <!-- Filtres -->
+        <div class="filter-bar reveal" role="group" aria-label="Filtrer les événements">
+            <button class="filter-btn active" data-type="">Tous</button>
+            <button class="filter-btn" data-type="honeypot">Honeypot</button>
+            <button class="filter-btn" data-type="error">Erreurs</button>
+            <button class="filter-btn" data-type="ratelimit">Rate limit</button>
+            <button class="filter-btn" data-type="brute_force">Brute force</button>
+        </div>
+
+        <div class="events-table reveal" role="table" aria-label="Liste des événements">
+            <div class="events-thead" role="row">
+                <span role="columnheader">Heure</span>
+                <span role="columnheader">IP</span>
+                <span role="columnheader">Méthode</span>
+                <span role="columnheader">Path</span>
+                <span role="columnheader">Status</span>
+                <span role="columnheader">Type</span>
+            </div>
+            <div class="events-tbody" id="events-tbody">
+                <div class="table-loading">Chargement...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION BLACKLIST ── -->
+    <section class="section hidden" id="section-blacklist" aria-labelledby="blacklist-title">
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">03 //</span>
+            <h2 class="section-title" id="blacklist-title">IPs Blacklistées</h2>
+        </div>
+
+        <div class="blacklist-table reveal" role="table" aria-label="Liste des IPs blacklistées">
+            <div class="blacklist-thead" role="row">
+                <span role="columnheader">IP</span>
+                <span role="columnheader">Raison</span>
+                <span role="columnheader">Blacklistée le</span>
+                <span role="columnheader">Expire le</span>
+            </div>
+            <div class="blacklist-tbody" id="blacklist-tbody">
+                <div class="table-loading">Chargement...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION TRAFFIC ── -->
+    <section class="section hidden" id="section-traffic" aria-labelledby="traffic-title">
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">04 //</span>
+            <h2 class="section-title" id="traffic-title">Analyse du trafic</h2>
+        </div>
+
+        <div class="recent-events reveal">
+            <div class="re-header">
+                <span class="re-title">Dernières requêtes en temps réel</span>
+                <span class="live-dot" aria-hidden="true"></span>
+            </div>
+            <div class="re-list" id="re-list">
+                <div class="table-loading">Chargement...</div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
