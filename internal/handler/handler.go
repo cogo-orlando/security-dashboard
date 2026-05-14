@@ -459,7 +459,7 @@ func getEvents(db *sql.DB, limit int, eventType, search string) ([]models.Securi
 
 	query += " ORDER BY created_at DESC"
 	args = append(args, limit)
-	query += fmt.Sprintf(" LIMIT $%d", len(args)) // #nosec G201
+	query += fmt.Sprintf(" LIMIT $%d", len(args)) // #nosec G201 G202
 
 	rows, err := db.Query(query, args...) // #nosec G701
 	if err != nil {

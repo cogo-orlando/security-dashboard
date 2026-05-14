@@ -47,7 +47,7 @@ func CreateSession(w http.ResponseWriter) {
 		Path:     "/",
 		MaxAge:   int(sessionTTL.Seconds()),
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == "production",
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	})
 }
