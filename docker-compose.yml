@@ -11,6 +11,11 @@ services:
     image: security-dashboard:latest
     container_name: security-dashboard
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
     ports:
       - "8081:8081"
     environment:

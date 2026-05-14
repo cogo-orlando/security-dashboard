@@ -2,21 +2,31 @@ package middleware
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"security/internal/auth"
+	"sync"
 	"time"
 )
 
-// Chain applique tous les middlewares
+// ══════════════════════════════════════════
+//  CHAIN
+// ══════════════════════════════════════════
+
 func Chain(next http.Handler, db *sql.DB) http.Handler {
 	h := next
 	h = LoggerMiddleware(h, db)
+	h = SecurityMiddleware(h)
+	h = MaxBytesMiddleware(h)
 	h = RecoveryMiddleware(h)
 	return h
 }
 
-// RequireAuth protège les routes admin
+// ══════════════════════════════════════════
+//  REQUIRE AUTH
+// ══════════════════════════════════════════
+
 func RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !auth.ValidSession(r) {
@@ -27,7 +37,114 @@ func RequireAuth(next http.Handler) http.Handler {
 	})
 }
 
-// LoggerMiddleware logue chaque requête et la sauvegarde en DB
+// ══════════════════════════════════════════
+//  SECURITY HEADERS
+// ══════════════════════════════════════════
+
+func SecurityMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Set("X-Frame-Options", "DENY")
+		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		h.Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		h.Set("Content-Security-Policy",
+			"default-src 'self'; "+
+				"style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "+
+				"font-src 'self' https://fonts.gstatic.com; "+
+				"script-src 'self'; "+
+				"img-src 'self' data:; "+
+				"connect-src 'self'",
+		)
+		h.Del("X-Powered-By")
+		h.Set("Server", "")
+		next.ServeHTTP(w, r)
+	})
+}
+
+// ══════════════════════════════════════════
+//  MAX BYTES — protection contre gros payloads
+// ══════════════════════════════════════════
+
+func MaxBytesMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1MB max
+		next.ServeHTTP(w, r)
+	})
+}
+
+// ══════════════════════════════════════════
+//  RATE LIMIT LOGIN
+//  Bloque après 10 tentatives en 5 minutes par IP
+// ══════════════════════════════════════════
+
+type loginLimiter struct {
+	mu      sync.Mutex
+	records map[string][]time.Time
+}
+
+var loginRL = &loginLimiter{records: make(map[string][]time.Time)}
+
+func init() {
+	go func() {
+		for range time.Tick(10 * time.Minute) {
+			loginRL.mu.Lock()
+			now := time.Now()
+			for ip, times := range loginRL.records {
+				var recent []time.Time
+				for _, t := range times {
+					if now.Sub(t) < 5*time.Minute {
+						recent = append(recent, t)
+					}
+				}
+				if len(recent) == 0 {
+					delete(loginRL.records, ip)
+				} else {
+					loginRL.records[ip] = recent
+				}
+			}
+			loginRL.mu.Unlock()
+		}
+	}()
+}
+
+func (ll *loginLimiter) allow(ip string) bool {
+	ll.mu.Lock()
+	defer ll.mu.Unlock()
+	now := time.Now()
+	var recent []time.Time
+	for _, t := range ll.records[ip] {
+		if now.Sub(t) < 5*time.Minute {
+			recent = append(recent, t)
+		}
+	}
+	if len(recent) >= 10 {
+		return false
+	}
+	ll.records[ip] = append(recent, now)
+	return true
+}
+
+// RateLimitLogin protège uniquement la route /api/login
+func RateLimitLogin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/login" && r.Method == http.MethodPost {
+			ip := getIP(r)
+			if !loginRL.allow(ip) {
+				slog.Warn("login rate limit dépassé", "ip", ip)
+				w.Header().Set("Retry-After", "300")
+				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// ══════════════════════════════════════════
+//  LOGGER
+// ══════════════════════════════════════════
+
 func LoggerMiddleware(next http.Handler, db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -47,19 +164,21 @@ func LoggerMiddleware(next http.Handler, db *sql.DB) http.Handler {
 			"user_agent", r.UserAgent(),
 		)
 
-		// Sauvegarde en DB de manière asynchrone
 		if db != nil {
 			go saveEvent(db, ip, r.Method, r.URL.Path, rw.status, r.UserAgent())
 		}
 	})
 }
 
-// RecoveryMiddleware récupère les panics
+// ══════════════════════════════════════════
+//  RECOVERY
+// ══════════════════════════════════════════
+
 func RecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rec := recover(); rec != nil {
-				slog.Error("panic récupéré", "error", rec)
+				slog.Error("panic récupéré", "error", fmt.Sprintf("%v", rec))
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			}
 		}()
@@ -67,7 +186,10 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// saveEvent sauvegarde un événement en base de données
+// ══════════════════════════════════════════
+//  SAVE EVENT
+// ══════════════════════════════════════════
+
 func saveEvent(db *sql.DB, ip, method, path string, status int, userAgent string) {
 	eventType := "request"
 	if status == http.StatusNotFound {
@@ -88,7 +210,10 @@ func saveEvent(db *sql.DB, ip, method, path string, status int, userAgent string
 	}
 }
 
-// getIP extrait l'IP réelle de la requête
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+
 func getIP(r *http.Request) string {
 	if ip := r.Header.Get("CF-Connecting-IP"); ip != "" {
 		return ip
@@ -99,7 +224,6 @@ func getIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-// responseWriter wrappé pour capturer le status code
 type responseWriter struct {
 	http.ResponseWriter
 	status int

@@ -58,7 +58,7 @@ func Start() {
 	// Routes publiques
 	mux.HandleFunc("/", handler.LoginHandler)
 	mux.HandleFunc("/login", handler.LoginHandler)
-	mux.HandleFunc("/api/login", handler.APILoginHandler(database))
+	mux.Handle("/api/login", middleware.RateLimitLogin(http.HandlerFunc(handler.APILoginHandler(database))))
 	mux.HandleFunc("/logout", handler.LogoutHandler)
 
 	// Routes protégées — dashboard
