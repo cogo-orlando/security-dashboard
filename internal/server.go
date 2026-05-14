@@ -65,6 +65,7 @@ func Start() {
 	mux.Handle("/dashboard", middleware.RequireAuth(handler.DashboardHandler(database)))
 
 	// Routes protégées — API
+	mux.Handle("/api/metrics", middleware.RequireAuth(handler.APIMetricsHandler()))
 	mux.Handle("/api/stats", middleware.RequireAuth(handler.APIStatsHandler(database)))
 	mux.Handle("/api/events", middleware.RequireAuth(handler.APIEventsHandler(database)))
 	mux.Handle("/api/blacklist", middleware.RequireAuth(handler.APIBlacklistHandler(database)))

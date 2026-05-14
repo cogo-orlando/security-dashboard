@@ -56,6 +56,14 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             <span>Erreurs</span>
         </a>
+        <a href="#metrics" class="nav-item" data-section="metrics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><rect x="2" y="3" width="6" height="18"/><rect x="9" y="8" width="6" height="13"/><rect x="16" y="13" width="6" height="8"/></svg>
+            <span>Métriques</span>
+        </a>
+        <a href="#score" class="nav-item" data-section="score">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <span>Security Score</span>
+        </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -301,6 +309,226 @@
             </div>
             <div class="errors-tbody" id="errors-tbody">
                 <div class="table-loading">Chargement...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION MÉTRIQUES ── -->
+    <section class="section hidden" id="section-metrics" aria-labelledby="metrics-title">
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">07 //</span>
+            <h2 class="section-title" id="metrics-title">Métriques système</h2>
+            <span class="section-live">
+                <span class="live-dot" aria-hidden="true"></span>
+                Live
+            </span>
+        </div>
+
+        <!-- KPI métriques -->
+        <div class="kpi-grid reveal" id="metrics-kpi">
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon--cyan" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="met-goroutines">—</span>
+                    <span class="kpi-label">Goroutines</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><rect x="2" y="3" width="6" height="18"/><rect x="9" y="8" width="6" height="13"/><rect x="16" y="13" width="6" height="8"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="met-alloc">—</span>
+                    <span class="kpi-label">Mémoire allouée</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon--warn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="met-uptime">—</span>
+                    <span class="kpi-label">Uptime</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon--cyan" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="met-gc">—</span>
+                    <span class="kpi-label">Cycles GC</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infos runtime -->
+        <div class="tables-grid reveal">
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title">Runtime Go</span>
+                </div>
+                <div class="table-body">
+                    <div class="table-row">
+                        <span class="tr-key">Version</span>
+                        <span class="tr-val" id="met-goversion">—</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">OS</span>
+                        <span class="tr-val" id="met-goos">—</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">Architecture</span>
+                        <span class="tr-val" id="met-goarch">—</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">Mémoire système</span>
+                        <span class="tr-val" id="met-sys">—</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">Total alloué</span>
+                        <span class="tr-val" id="met-total">—</span>
+                    </div>
+                </div>
+            </div>
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title">Infrastructure</span>
+                </div>
+                <div class="table-body">
+                    <div class="table-row">
+                        <span class="tr-key">Backend</span>
+                        <span class="tr-val" style="color:var(--accent)">Go</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">Container</span>
+                        <span class="tr-val" style="color:var(--accent)">Docker</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">CDN</span>
+                        <span class="tr-val" style="color:var(--accent)">Cloudflare</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">Provider</span>
+                        <span class="tr-val" style="color:var(--accent)">Render</span>
+                    </div>
+                    <div class="table-row">
+                        <span class="tr-key">Database</span>
+                        <span class="tr-val" style="color:var(--accent)">Supabase PostgreSQL</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION SECURITY SCORE ── -->
+    <section class="section hidden" id="section-score" aria-labelledby="score-title">
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">08 //</span>
+            <h2 class="section-title" id="score-title">Security Score</h2>
+        </div>
+
+        <!-- Score global -->
+        <div class="score-hero reveal">
+            <div class="score-circle">
+                <svg viewBox="0 0 120 120" width="160" height="160" aria-hidden="true">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="8"
+                            stroke-dasharray="314" stroke-dashoffset="31"
+                            stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                </svg>
+                <div class="score-val">90<span class="score-unit">/100</span></div>
+            </div>
+            <div class="score-info">
+                <div class="score-grade">A</div>
+                <div class="score-label">Excellent</div>
+                <div class="score-sub">Basé sur 10 critères de sécurité</div>
+            </div>
+        </div>
+
+        <!-- Critères détaillés -->
+        <div class="score-grid reveal">
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">HTTPS forcé</span>
+                    <span class="score-item-desc">SSL Full Strict via Cloudflare</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">Security Headers</span>
+                    <span class="score-item-desc">X-Frame-Options, CSP, X-Content-Type-Options</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">Rate Limiting</span>
+                    <span class="score-item-desc">120 req/min — 10 tentatives login max</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">Honeypot actif</span>
+                    <span class="score-item-desc">15 routes piège — blacklist 24h automatique</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">Auth bcrypt</span>
+                    <span class="score-item-desc">Mot de passe hashé bcrypt cost 10</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">Cookies sécurisés</span>
+                    <span class="score-item-desc">HttpOnly + Secure + SameSite=Strict</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">WAF Cloudflare</span>
+                    <span class="score-item-desc">DDoS protection + Bot Fight Mode</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">Docker hardening</span>
+                    <span class="score-item-desc">no-new-privileges + read_only + USER 1001</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--pass">
+                <div class="score-item-icon">✓</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">DB sécurisée</span>
+                    <span class="score-item-desc">RLS + utilisateur dédié + sslmode=require</span>
+                </div>
+                <span class="score-item-badge score-badge--pass">+10</span>
+            </div>
+            <div class="score-item score-item--warn">
+                <div class="score-item-icon">○</div>
+                <div class="score-item-info">
+                    <span class="score-item-name">Alertes email</span>
+                    <span class="score-item-desc">Notifications automatiques — en cours</span>
+                </div>
+                <span class="score-item-badge score-badge--warn">+0</span>
             </div>
         </div>
     </section>

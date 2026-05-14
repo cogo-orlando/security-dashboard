@@ -539,7 +539,32 @@ function loadSectionData(section) {
         case 'traffic':   loadStats(); break;
         case 'agents':    loadAgents(); break;
         case 'errors':    loadErrors(); break;
+        case 'metrics': loadMetrics(); break;
+        case 'score':   break;
     }
+}
+
+async function loadMetrics() {
+    try {
+        const res = await fetch('/api/metrics');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderMetrics(data);
+    } catch (err) {
+        console.error('loadMetrics error:', err);
+    }
+}
+
+function renderMetrics(data) {
+    setText('met-goroutines', data.goroutines ?? '—');
+    setText('met-alloc', `${(data.alloc_mb ?? 0).toFixed(2)} MB`);
+    setText('met-uptime', data.uptime ?? '—');
+    setText('met-gc', data.gc_cycles ?? '—');
+    setText('met-goversion', data.go_version ?? '—');
+    setText('met-goos', data.goos ?? '—');
+    setText('met-goarch', data.goarch ?? '—');
+    setText('met-sys', `${(data.sys_mb ?? 0).toFixed(2)} MB`);
+    setText('met-total', `${(data.total_alloc_mb ?? 0).toFixed(2)} MB`);
 }
 
 // ── Bouton refresh ──

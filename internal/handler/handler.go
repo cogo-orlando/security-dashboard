@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+	"runtime"
 	"security/internal/auth"
 	"security/internal/models"
 	"strconv"
@@ -525,3 +526,44 @@ func logFailedLogin(db *sql.DB, r *http.Request) {
 		`, ip, "brute_force_login", time.Now().Add(24*time.Hour))
 	}
 }
+
+// ══════════════════════════════════════════
+//  API METRICS — métriques système Go
+// ══════════════════════════════════════════
+
+func APIMetricsHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var mem runtime.MemStats
+		runtime.ReadMemStats(&mem)
+
+		type Metrics struct {
+			Goroutines   int     `json:"goroutines"`
+			AllocMB      float64 `json:"alloc_mb"`
+			TotalAllocMB float64 `json:"total_alloc_mb"`
+			SysMB        float64 `json:"sys_mb"`
+			GCCycles     uint32  `json:"gc_cycles"`
+			Uptime       string  `json:"uptime"`
+			GoVersion    string  `json:"go_version"`
+			GOOS         string  `json:"goos"`
+			GOARCH       string  `json:"goarch"`
+		}
+
+		metrics := Metrics{
+			Goroutines:   runtime.NumGoroutine(),
+			AllocMB:      float64(mem.Alloc) / 1024 / 1024,
+			TotalAllocMB: float64(mem.TotalAlloc) / 1024 / 1024,
+			SysMB:        float64(mem.Sys) / 1024 / 1024,
+			GCCycles:     mem.NumGC,
+			Uptime:       time.Since(startTime).Round(time.Second).String(),
+			GoVersion:    runtime.Version(),
+			GOOS:         runtime.GOOS,
+			GOARCH:       runtime.GOARCH,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(metrics) // #nosec G104
+	})
+}
+
+// startTime enregistre le démarrage du serveur
+var startTime = time.Now()

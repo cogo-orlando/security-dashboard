@@ -190,6 +190,32 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .er-level--warn { color:var(--warn); border-color:rgba(245,160,0,0.3); }
 .er-level--ok { color:var(--accent); border-color:rgba(0,245,160,0.3); }
 
+/* ── SECURITY SCORE ── */
+.score-hero { display:flex; align-items:center; gap:3rem; margin-bottom:2rem; background:var(--surface); border:1px solid var(--border2); padding:2rem; }
+.score-circle { position:relative; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.score-val { position:absolute; font-size:2rem; font-weight:800; color:var(--accent); letter-spacing:-0.03em; }
+.score-unit { font-size:1rem; color:var(--muted2); }
+.score-grade { font-size:4rem; font-weight:800; color:var(--accent); line-height:1; }
+.score-label { font-size:1.2rem; font-weight:700; color:var(--text); margin-top:4px; }
+.score-sub { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted2); margin-top:8px; }
+.score-info { display:flex; flex-direction:column; }
+
+.score-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:1rem; }
+.score-item { background:var(--surface); border:1px solid var(--border2); padding:1rem 1.2rem; display:flex; align-items:center; gap:1rem; transition:border-color 0.2s; }
+.score-item--pass { border-left:3px solid var(--accent); }
+.score-item--warn { border-left:3px solid var(--warn); }
+.score-item--fail { border-left:3px solid var(--danger); }
+.score-item-icon { font-size:1.2rem; color:var(--accent); flex-shrink:0; width:24px; text-align:center; }
+.score-item--warn .score-item-icon { color:var(--warn); }
+.score-item--fail .score-item-icon { color:var(--danger); }
+.score-item-info { flex:1; display:flex; flex-direction:column; gap:3px; }
+.score-item-name { font-size:13px; font-weight:700; color:var(--text); }
+.score-item-desc { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); }
+.score-item-badge { font-family:'DM Mono',monospace; font-size:11px; padding:2px 8px; border:1px solid; flex-shrink:0; }
+.score-badge--pass { color:var(--accent); border-color:rgba(0,245,160,0.3); }
+.score-badge--warn { color:var(--warn); border-color:rgba(245,160,0,0.3); }
+.score-badge--fail { color:var(--danger); border-color:rgba(245,80,80,0.3); }
+
 /* ── REVEAL ── */
 .reveal { opacity:0; transform:translateY(16px); transition:opacity 0.6s ease,transform 0.6s ease; }
 .reveal.visible { opacity:1; transform:translateY(0); }
