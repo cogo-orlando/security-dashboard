@@ -48,6 +48,14 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             <span>Trafic</span>
         </a>
+        <a href="#agents" class="nav-item" data-section="agents">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+            <span>User Agents</span>
+        </a>
+        <a href="#errors" class="nav-item" data-section="errors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Erreurs</span>
+        </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -71,6 +79,10 @@
         </div>
         <div class="topbar-right">
             <div class="topbar-time" id="liveTime" aria-live="polite"></div>
+            <a href="/api/export?days=7" class="export-btn" id="exportBtn" download aria-label="Exporter les événements en CSV">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+            </a>
             <button class="refresh-btn" id="refreshBtn" aria-label="Rafraîchir les données">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
                 Rafraîchir
@@ -90,9 +102,9 @@
             </span>
         </div>
 
-        <!-- KPI Cards -->
+        <!-- KPI Cards avec tendances -->
         <div class="kpi-grid" aria-label="Indicateurs clés">
-            <div class="kpi-card kpi-card--accent" id="kpi-events">
+            <div class="kpi-card kpi-card--accent">
                 <div class="kpi-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 </div>
@@ -101,31 +113,43 @@
                     <span class="kpi-label">Total événements</span>
                 </div>
             </div>
-            <div class="kpi-card" id="kpi-24h">
+            <div class="kpi-card">
                 <div class="kpi-icon kpi-icon--cyan" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
                 <div class="kpi-info">
                     <span class="kpi-val" id="kpi-events-24h">—</span>
                     <span class="kpi-label">Requêtes 24h</span>
+                    <span class="kpi-trend" id="trend-req"></span>
                 </div>
             </div>
-            <div class="kpi-card kpi-card--warn" id="kpi-honeypot">
+            <div class="kpi-card kpi-card--warn">
                 <div class="kpi-icon kpi-icon--warn" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 </div>
                 <div class="kpi-info">
                     <span class="kpi-val" id="kpi-honeypots">—</span>
                     <span class="kpi-label">Honeypots 24h</span>
+                    <span class="kpi-trend" id="trend-hp"></span>
                 </div>
             </div>
-            <div class="kpi-card kpi-card--danger" id="kpi-blacklist">
+            <div class="kpi-card kpi-card--danger">
                 <div class="kpi-icon kpi-icon--danger" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
                 </div>
                 <div class="kpi-info">
                     <span class="kpi-val" id="kpi-blacklist-count">—</span>
                     <span class="kpi-label">IPs blacklistées</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon--danger" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                </div>
+                <div class="kpi-info">
+                    <span class="kpi-val" id="kpi-errors-24h">—</span>
+                    <span class="kpi-label">Erreurs 24h</span>
+                    <span class="kpi-trend" id="trend-err"></span>
                 </div>
             </div>
         </div>
@@ -172,13 +196,19 @@
             <h2 class="section-title" id="events-title">Événements récents</h2>
         </div>
 
-        <!-- Filtres -->
-        <div class="filter-bar reveal" role="group" aria-label="Filtrer les événements">
-            <button class="filter-btn active" data-type="">Tous</button>
-            <button class="filter-btn" data-type="honeypot">Honeypot</button>
-            <button class="filter-btn" data-type="error">Erreurs</button>
-            <button class="filter-btn" data-type="ratelimit">Rate limit</button>
-            <button class="filter-btn" data-type="brute_force">Brute force</button>
+        <!-- Barre recherche + filtres -->
+        <div class="search-filter-bar reveal">
+            <div class="search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="search" id="eventSearch" class="search-input" placeholder="Rechercher par IP ou path..." aria-label="Rechercher dans les événements">
+            </div>
+            <div class="filter-bar" role="group" aria-label="Filtrer les événements">
+                <button class="filter-btn active" data-type="">Tous</button>
+                <button class="filter-btn" data-type="honeypot">Honeypot</button>
+                <button class="filter-btn" data-type="error">Erreurs</button>
+                <button class="filter-btn" data-type="ratelimit">Rate limit</button>
+                <button class="filter-btn" data-type="brute_force">Brute force</button>
+            </div>
         </div>
 
         <div class="events-table reveal" role="table" aria-label="Liste des événements">
@@ -220,15 +250,56 @@
     <section class="section hidden" id="section-traffic" aria-labelledby="traffic-title">
         <div class="section-header">
             <span class="section-tag" aria-hidden="true">04 //</span>
-            <h2 class="section-title" id="traffic-title">Analyse du trafic</h2>
+            <h2 class="section-title" id="traffic-title">Trafic en temps réel</h2>
         </div>
 
         <div class="recent-events reveal">
             <div class="re-header">
-                <span class="re-title">Dernières requêtes en temps réel</span>
+                <span class="re-title">Dernières requêtes</span>
                 <span class="live-dot" aria-hidden="true"></span>
             </div>
             <div class="re-list" id="re-list">
+                <div class="table-loading">Chargement...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION USER AGENTS ── -->
+    <section class="section hidden" id="section-agents" aria-labelledby="agents-title">
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">05 //</span>
+            <h2 class="section-title" id="agents-title">User Agents — 24h</h2>
+        </div>
+
+        <div class="agents-grid reveal" id="agents-grid">
+            <div class="table-loading">Chargement...</div>
+        </div>
+
+        <div class="chart-card reveal" style="margin-top:1rem">
+            <div class="chart-header">
+                <span class="chart-title">Répartition des navigateurs / bots</span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="agentsChart" height="200"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION ERREURS ── -->
+    <section class="section hidden" id="section-errors" aria-labelledby="errors-title">
+        <div class="section-header">
+            <span class="section-tag" aria-hidden="true">06 //</span>
+            <h2 class="section-title" id="errors-title">Erreurs groupées — 24h</h2>
+        </div>
+
+        <div class="errors-table reveal" role="table" aria-label="Erreurs groupées par path">
+            <div class="errors-thead" role="row">
+                <span role="columnheader">Path</span>
+                <span role="columnheader">Status</span>
+                <span role="columnheader">Occurrences</span>
+                <span role="columnheader">Niveau</span>
+            </div>
+            <div class="errors-tbody" id="errors-tbody">
                 <div class="table-loading">Chargement...</div>
             </div>
         </div>

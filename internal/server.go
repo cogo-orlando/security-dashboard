@@ -31,6 +31,22 @@ func Start() {
 	}
 	slog.Info("migrations appliquées")
 
+	// ── Nettoyage automatique — toutes les 24h ──
+	go func() {
+		for range time.Tick(24 * time.Hour) {
+			result, err := database.Exec(`
+				DELETE FROM security_events
+				WHERE created_at < NOW() - INTERVAL '30 days'
+			`)
+			if err != nil {
+				slog.Error("auto-cleanup failed", "error", err)
+				continue
+			}
+			deleted, _ := result.RowsAffected()
+			slog.Info("auto-cleanup effectué", "deleted", deleted)
+		}
+	}()
+
 	// ── Router ──
 	mux := http.NewServeMux()
 
@@ -45,11 +61,18 @@ func Start() {
 	mux.HandleFunc("/api/login", handler.APILoginHandler(database))
 	mux.HandleFunc("/logout", handler.LogoutHandler)
 
-	// Routes protégées
+	// Routes protégées — dashboard
 	mux.Handle("/dashboard", middleware.RequireAuth(handler.DashboardHandler(database)))
+
+	// Routes protégées — API
 	mux.Handle("/api/stats", middleware.RequireAuth(handler.APIStatsHandler(database)))
 	mux.Handle("/api/events", middleware.RequireAuth(handler.APIEventsHandler(database)))
 	mux.Handle("/api/blacklist", middleware.RequireAuth(handler.APIBlacklistHandler(database)))
+	mux.Handle("/api/agents", middleware.RequireAuth(handler.APIAgentsHandler(database)))
+	mux.Handle("/api/errors", middleware.RequireAuth(handler.APIErrorsHandler(database)))
+	mux.Handle("/api/trends", middleware.RequireAuth(handler.APITrendsHandler(database)))
+	mux.Handle("/api/export", middleware.RequireAuth(handler.APIExportHandler(database)))
+	mux.Handle("/api/cleanup", middleware.RequireAuth(handler.APICleanupHandler(database)))
 
 	// Middleware chain
 	h := middleware.Chain(mux, database)
